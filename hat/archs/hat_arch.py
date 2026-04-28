@@ -867,6 +867,8 @@ class HAT(nn.Module):
                 nn.Conv2d(embed_dim, num_feat, 3, 1, 1), nn.LeakyReLU(inplace=True))
             self.upsample = Upsample(upscale, num_feat)
             self.conv_last = nn.Conv2d(num_feat, num_out_ch, 3, 1, 1)
+        else:
+            self.conv_last = nn.Conv2d(embed_dim, num_out_ch, 3, 1, 1)
 
         self.apply(self._init_weights)
 
@@ -978,6 +980,11 @@ class HAT(nn.Module):
             x = self.conv_after_body(self.forward_features(x)) + x
             x = self.conv_before_upsample(x)
             x = self.conv_last(self.upsample(x))
+        else:
+            # for image-to-image translation (scale=1, virtual staining)
+            x = self.conv_first(x)
+            x = self.conv_after_body(self.forward_features(x)) + x
+            x = self.conv_last(x)
 
         x = x / self.img_range + self.mean
 

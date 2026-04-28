@@ -1,44 +1,38 @@
-# general settings
-name: smoke_test_MIST_HER2
+name: smoke_test_BCI
 model_type: HATModel
 scale: 1
-num_gpu: 0
+num_gpu: 0          # changed: no GPU
 manual_seed: 0
 
 tile:
   tile_size: 128
   tile_pad: 16
 
-# dataset and data loader settings
 datasets:
   train:
-    name: MIST_HER2_train
+    name: BCI_train
     type: PairedImageDataset
-    dataroot_gt: datasets/MIST/HER2/train_B
-    dataroot_lq: datasets/MIST/HER2/train_A
+    dataroot_gt: datasets/BCI/train_IHC
+    dataroot_lq: datasets/BCI/train_HE
     io_backend:
       type: disk
-
     gt_size: 128
     use_hflip: true
     use_rot: true
-
-    # data loader
     use_shuffle: true
-    num_worker_per_gpu: 0
+    num_worker_per_gpu: 0   # changed: 0 for Windows (avoids multiprocessing issues)
     batch_size_per_gpu: 1
     dataset_enlarge_ratio: 1
     prefetch_mode: ~
 
   val:
-    name: MIST_HER2_val
+    name: BCI_val
     type: PairedImageDataset
-    dataroot_gt: datasets/MIST/HER2/test_B
-    dataroot_lq: datasets/MIST/HER2/test_A
+    dataroot_gt: datasets/BCI/test_IHC
+    dataroot_lq: datasets/BCI/test_HE
     io_backend:
       type: disk
 
-# network structures
 network_g:
   type: HAT
   upscale: 1
@@ -54,16 +48,14 @@ network_g:
   embed_dim: 96
   num_heads: [6, 6, 6, 6]
   mlp_ratio: 2
-  upsampler: ''
+  upsampler: ''           # changed: no upsampling for scale=1
   resi_connection: '1conv'
 
-# path
 path:
   pretrain_network_g: ~
   strict_load_g: true
   resume_state: ~
 
-# training settings
 train:
   ema_decay: 0
   optim_g:
@@ -74,22 +66,20 @@ train:
 
   scheduler:
     type: MultiStepLR
-    milestones: [10]
+    milestones: [920]
     gamma: 0.5
 
-  total_iter: 10
+  total_iter: 920       # changed: 1 full epoch (920 images)
   warmup_iter: -1
 
-  # losses
   pixel_opt:
     type: L1Loss
     loss_weight: 1.0
     reduction: mean
 
-# validation settings
 val:
-  val_freq: 10
-  save_img: false
+  val_freq: 920         # changed: validate once at end of epoch
+  save_img: false       # changed: skip saving images (saves time/space)
   pbar: False
 
   metrics:
@@ -102,16 +92,14 @@ val:
       crop_border: 0
       test_y_channel: false
 
-# logging settings
 logger:
-  print_freq: 5
-  save_checkpoint_freq: 10
+  print_freq: 50        # changed: print every 50 iters instead of every 1
+  save_checkpoint_freq: 920   # changed: save once at the end
   use_tb_logger: false
   wandb:
     project: ~
     resume_id: ~
 
-# dist training settings
 dist_params:
   backend: nccl
   port: 29500
