@@ -1,18 +1,19 @@
-name: HAT_BCI_test
+name: test_HAT_MIST_HER2
 model_type: HATModel
 scale: 1
-num_gpu: 0
+num_gpu: 1
 manual_seed: 0
+
 tile:
   tile_size: 256
   tile_pad: 32
 
 datasets:
   test_1:
-    name: BCI
+    name: MIST_HER2_test
     type: PairedImageDataset
-    dataroot_gt: ./datasets/BCI/test_IHC
-    dataroot_lq: ./datasets/BCI/test_HE
+    dataroot_gt: /scratch/antwerpen/212/vsc21216/unified/datasets/MIST/HER2/valB
+    dataroot_lq: /scratch/antwerpen/212/vsc21216/unified/datasets/MIST/HER2/valA
     io_backend:
       type: disk
 
@@ -35,14 +36,13 @@ network_g:
   resi_connection: '1conv'
 
 path:
-  pretrain_network_g: experiments/pretrained_models/HAT_SRx4_ImageNet-pretrain.pth
-  strict_load_g: false
+  pretrain_network_g: /data/antwerpen/212/vsc21216/projects/unified/outputs/hat/MIST_HER2/checkpoints/net_g_latest.pth
+  strict_load_g: true
   param_key_g: params_ema
 
 val:
   save_img: true
   suffix: ~
-
   metrics:
     psnr:
       type: calculate_psnr

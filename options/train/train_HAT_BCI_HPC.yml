@@ -1,0 +1,98 @@
+name: train_HAT_BCI
+model_type: HATModel
+scale: 1
+num_gpu: 1
+manual_seed: 0
+
+datasets:
+  train:
+    name: BCI_train
+    type: PairedImageDataset
+    dataroot_gt: /scratch/antwerpen/212/vsc21216/unified/datasets/BCI/train_IHC
+    dataroot_lq: /scratch/antwerpen/212/vsc21216/unified/datasets/BCI/train_HE
+    io_backend:
+      type: disk
+    gt_size: 256
+    use_hflip: true
+    use_rot: true
+    use_shuffle: true
+    num_worker_per_gpu: 4
+    batch_size_per_gpu: 4
+    dataset_enlarge_ratio: 1
+    prefetch_mode: ~
+  val:
+    name: BCI_val
+    type: PairedImageDataset
+    dataroot_gt: /scratch/antwerpen/212/vsc21216/unified/datasets/BCI/test_IHC
+    dataroot_lq: /scratch/antwerpen/212/vsc21216/unified/datasets/BCI/test_HE
+    io_backend:
+      type: disk
+
+network_g:
+  type: HAT
+  upscale: 1
+  in_chans: 3
+  img_size: 64
+  window_size: 16
+  compress_ratio: 3
+  squeeze_factor: 30
+  conv_scale: 0.01
+  overlap_ratio: 0.5
+  img_range: 1.
+  depths: [6, 6, 6, 6, 6, 6]
+  embed_dim: 180
+  num_heads: [6, 6, 6, 6, 6, 6]
+  mlp_ratio: 2
+  upsampler: ''
+  resi_connection: '1conv'
+
+path:
+  pretrain_network_g: ~
+  strict_load_g: true
+  resume_state: ~
+  models: /data/antwerpen/212/vsc21216/projects/unified/outputs/hat/BCI/checkpoints
+  training_states: /data/antwerpen/212/vsc21216/projects/unified/outputs/hat/BCI/checkpoints
+
+train:
+  ema_decay: 0
+  optim_g:
+    type: Adam
+    lr: !!float 2e-4
+    weight_decay: 0
+    betas: [0.9, 0.99]
+  scheduler:
+    type: MultiStepLR
+    milestones: [11500]
+    gamma: 0.5
+  total_iter: 11500
+  warmup_iter: -1
+  pixel_opt:
+    type: L1Loss
+    loss_weight: 1.0
+    reduction: mean
+
+val:
+  val_freq: 2300
+  save_img: false
+  pbar: false
+  metrics:
+    psnr:
+      type: calculate_psnr
+      crop_border: 0
+      test_y_channel: false
+    ssim:
+      type: calculate_ssim
+      crop_border: 0
+      test_y_channel: false
+
+logger:
+  print_freq: 100
+  save_checkpoint_freq: 2300
+  use_tb_logger: false
+  wandb:
+    project: ~
+    resume_id: ~
+
+dist_params:
+  backend: nccl
+  port: 29500
