@@ -8,8 +8,8 @@ datasets:
   train:
     name: MIST_Ki67_train
     type: PairedImageDataset
-    dataroot_gt: /scratch/antwerpen/212/vsc21216/unified/datasets/MIST/Ki67/trainB
-    dataroot_lq: /scratch/antwerpen/212/vsc21216/unified/datasets/MIST/Ki67/trainA
+    dataroot_gt: /data/MIST/Ki67/TrainValAB/trainB
+    dataroot_lq: /data/MIST/Ki67/TrainValAB/trainA
     io_backend:
       type: disk
     gt_size: 256
@@ -23,8 +23,8 @@ datasets:
   val:
     name: MIST_Ki67_val
     type: PairedImageDataset
-    dataroot_gt: /scratch/antwerpen/212/vsc21216/unified/datasets/MIST/Ki67/valB
-    dataroot_lq: /scratch/antwerpen/212/vsc21216/unified/datasets/MIST/Ki67/valA
+    dataroot_gt: /data/MIST/Ki67/TrainValAB/valB
+    dataroot_lq: /data/MIST/Ki67/TrainValAB/valA
     io_backend:
       type: disk
 
@@ -50,8 +50,8 @@ path:
   pretrain_network_g: ~
   strict_load_g: true
   resume_state: ~
-  models: /data/antwerpen/212/vsc21216/projects/unified/outputs/hat/MIST_Ki67/checkpoints
-  training_states: /data/antwerpen/212/vsc21216/projects/unified/outputs/hat/MIST_Ki67/checkpoints
+  models: /output/checkpoints
+  training_states: /output/checkpoints
 
 train:
   ema_decay: 0
@@ -62,9 +62,9 @@ train:
     betas: [0.9, 0.99]
   scheduler:
     type: MultiStepLR
-    milestones: [11500]
+    milestones: [1091]
     gamma: 0.5
-  total_iter: 11500
+  total_iter: 1091
   warmup_iter: -1
   pixel_opt:
     type: L1Loss
@@ -72,7 +72,7 @@ train:
     reduction: mean
 
 val:
-  val_freq: 2300
+  val_freq: 100
   save_img: false
   pbar: false
   metrics:
@@ -87,8 +87,8 @@ val:
 
 logger:
   print_freq: 100
-  save_checkpoint_freq: 2300
-  use_tb_logger: false
+  save_checkpoint_freq: 1035
+  use_tb_logger: true
   wandb:
     project: ~
     resume_id: ~
