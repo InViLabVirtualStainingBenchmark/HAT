@@ -3,13 +3,12 @@ model_type: HATModel
 scale: 1
 num_gpu: 1
 manual_seed: 0
-
 datasets:
   train:
-    name: MIST_PR_train
+    name: BCI_train
     type: PairedImageDataset
-    dataroot_gt: /data/MIST/PR/TrainValAB/trainB
-    dataroot_lq: /data/MIST/PR/TrainValAB/trainA
+    dataroot_gt: /data/train_IHC
+    dataroot_lq: /data/train_HE
     io_backend:
       type: disk
     gt_size: 256
@@ -17,17 +16,19 @@ datasets:
     use_rot: true
     use_shuffle: true
     num_worker_per_gpu: 4
-    batch_size_per_gpu: 4
+    batch_size_per_gpu: 1
     dataset_enlarge_ratio: 1
     prefetch_mode: ~
   val:
-    name: MIST_PR_val
+    name: BCI_val
     type: PairedImageDataset
-    dataroot_gt: /data/MIST/PR/TrainValAB/valB
-    dataroot_lq: /data/MIST/PR/TrainValAB/valA
+    dataroot_gt: /data/val_IHC
+    dataroot_lq: /data/val_HE
     io_backend:
       type: disk
-
+tile:
+  tile_size: 256
+  tile_pad: 32
 network_g:
   type: HAT
   upscale: 1
@@ -45,14 +46,12 @@ network_g:
   mlp_ratio: 2
   upsampler: ''
   resi_connection: '1conv'
-
 path:
   pretrain_network_g: ~
   strict_load_g: true
   resume_state: ~
   models: /output/checkpoints
   training_states: /output/checkpoints
-
 train:
   ema_decay: 0
   optim_g:
@@ -62,17 +61,16 @@ train:
     betas: [0.9, 0.99]
   scheduler:
     type: MultiStepLR
-    milestones: [1035]
+    milestones: [150000]
     gamma: 0.5
-  total_iter: 1035
+  total_iter: 150000
   warmup_iter: -1
   pixel_opt:
     type: L1Loss
     loss_weight: 1.0
     reduction: mean
-
 val:
-  val_freq: 100
+  val_freq: 10000
   save_img: false
   pbar: false
   metrics:
@@ -84,15 +82,13 @@ val:
       type: calculate_ssim
       crop_border: 0
       test_y_channel: false
-
 logger:
   print_freq: 100
-  save_checkpoint_freq: 1035
+  save_checkpoint_freq: 10000
   use_tb_logger: true
   wandb:
     project: ~
     resume_id: ~
-
 dist_params:
   backend: nccl
   port: 29500
