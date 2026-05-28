@@ -5,13 +5,13 @@ num_gpu: 1
 manual_seed: 0
 datasets:
   train:
-    name: BCI_train
+    name: MIST_ER_train
     type: PairedImageDataset
     dataroot_gt: /data/train_IHC
     dataroot_lq: /data/train_HE
     io_backend:
       type: disk
-    gt_size: 256
+    gt_size: 128
     use_hflip: true
     use_rot: true
     use_shuffle: true
@@ -20,14 +20,14 @@ datasets:
     dataset_enlarge_ratio: 1
     prefetch_mode: ~
   val:
-    name: BCI_val
+    name: MIST_ER_val
     type: PairedImageDataset
     dataroot_gt: /data/val_IHC
     dataroot_lq: /data/val_HE
     io_backend:
       type: disk
 tile:
-  tile_size: 256
+  tile_size: 128
   tile_pad: 32
 network_g:
   type: HAT
@@ -61,9 +61,9 @@ train:
     betas: [0.9, 0.99]
   scheduler:
     type: MultiStepLR
-    milestones: [150000]
+    milestones: [50000]
     gamma: 0.5
-  total_iter: 150000
+  total_iter: 50000
   warmup_iter: -1
   pixel_opt:
     type: L1Loss
@@ -84,7 +84,7 @@ val:
       test_y_channel: false
 logger:
   print_freq: 100
-  save_checkpoint_freq: 10000
+  save_checkpoint_freq: 15000
   use_tb_logger: true
   wandb:
     project: ~
